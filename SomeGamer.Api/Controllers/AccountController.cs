@@ -17,7 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SomeGamer.Api.Controllers
-{
+{ //teste 
     [Route("api/Account")]
     [ApiController]
     public class AccountController : ControllerBase
