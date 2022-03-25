@@ -36,7 +36,7 @@ namespace SomeGamer.Api.Controllers
             _context = context;
         }//teste
 
-        [HttpGet("Get")] //caralho teste funciona porra
+        [HttpGet("Get")] 
         public ActionResult<string> Get()
         {
             return "<<Controlador AccountController :: WebApiUsuarios>>";
