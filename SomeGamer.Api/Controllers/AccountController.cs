@@ -17,7 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SomeGamer.Api.Controllers
-{
+{ //a gente vai gabaritar
     [Route("api/Account")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -36,7 +36,7 @@ namespace SomeGamer.Api.Controllers
             _context = context;
         }//teste
 
-        [HttpGet("Get")]
+        [HttpGet("Get")] 
         public ActionResult<string> Get()
         {
             return "<<Controlador AccountController :: WebApiUsuarios>>";
