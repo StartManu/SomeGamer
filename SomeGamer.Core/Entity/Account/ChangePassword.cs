@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SomeGamer.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace SomeGamer.Core.Entity.Account
 {
-    public class ChangePassword
+    public class ChangePassword :IdKeyIdentity
     {
         [Required]
         [DataType(DataType.Password)]

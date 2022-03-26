@@ -47,36 +47,55 @@ namespace SomeGamer.Api.Controllers
         public async Task<ActionResult> Create([FromBody] Login login)
         {
             var usuario = new User { UserName = login.Email, Email = login.Email };
-            //add aqui uma regra para verificar se o user já existe
-            //Verificar se o email já existe
-            var resultado = await _userManager.CreateAsync(usuario, login.Password);
-
-            if (resultado.Succeeded)
+            if (_userManager.GetLoginsAsync(usuario) == null)
             {
-                return Ok(new { Message = "Usuário Registrado com sucesso" });
+                return BadRequest("O usuario já existe");
             }
             else
             {
-                return BadRequest("Alguma coisa deu errado socorro");
+                 _context.Usuarios.Add(usuario);
+                var resultado = await _userManager.CreateAsync(usuario, login.Password);
+
+                if (resultado.Succeeded)
+                {
+                    await _context.SaveChangesAsync();
+                    return Ok(new { Message = "Usuário Registrado com sucesso" });
+                }
+                else
+                {
+                    return BadRequest("Alguma coisa deu errado socorro");
+                }
             }
+            
         }
         //POST api/Account/Login
         [HttpPost("Login")]
-        public async Task<ActionResult> Login([FromBody] Login contaDeUsusario)
+        public async Task<ActionResult> Login([FromBody] Login login)
         {
             //Verificar se o email já existe, se não existe retornar q o email não existe
-            var resultado = await _signInManager.PasswordSignInAsync(contaDeUsusario.Email, contaDeUsusario.Password,
-                isPersistent: false, lockoutOnFailure: false);
-            if (resultado.Succeeded)
+            //var l = _userManager.GetLoginsAsync
+            var user = await _context.Usuarios.FindAsync(login);
+            if (user == null)
             {
-                var token = TokenUsuario(contaDeUsusario);
-                return Ok(new { Token = token, Message = "Sucesso" });
+                return BadRequest("Usuario não foi encontrado, verifique o login " + user);
             }
             else
             {
-                //Add aq alguma logica para retornar o erro
-                ModelState.AddModelError(string.Empty, "login falhou");
-                return BadRequest(ModelState);
+               
+                var resultado = await _signInManager.PasswordSignInAsync(login.Email, login.Password,
+                    isPersistent: false, lockoutOnFailure: false);
+                if (resultado.Succeeded)
+                {
+                    var token = TokenUsuario(login);
+
+                    return Ok(new { Token = token, Message = "Sucesso" });
+                }
+                else
+                {
+                    //Add aq alguma logica para retornar o erro
+                    ModelState.AddModelError(string.Empty, "login falhou");
+                    return BadRequest(ModelState);
+                }
             }
 
         }
@@ -100,7 +119,7 @@ namespace SomeGamer.Api.Controllers
                         
         }
         // POST api/Account/ChangePassword
-        [Authorize]
+        //[Authorize]
         [HttpPost("ChangePassword")]
         public async Task<ActionResult> ChangePassword(Login login,ChangePassword model)
         {
@@ -111,22 +130,53 @@ namespace SomeGamer.Api.Controllers
             var user = await _context.Usuarios.FindAsync(login);
             if(user == null)
             {
-                return BadRequest("Usuario não foi encontrado, verifique o login");
-            }
-            IdentityResult result = await _userManager.ChangePasswordAsync(user, model.OldPassword,
-                model.NewPassword);
-
-            if (!result.Succeeded)
-            {
-                return BadRequest(result);
+                return BadRequest("Usuario não foi encontrado, verifique o login" + user);
             }
             else
             {
-                return Ok();
+                IdentityResult result = await _userManager.ChangePasswordAsync(user, model.OldPassword,
+                model.NewPassword);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                else
+                {
+                    return Ok();
+                }
+
             }
-
-
+            //ResetPassword
         }
+        public async Task<ActionResult> ResetPassword(Login login, ResetPassword model, JwtSecurityToken tokenReader)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var user = await _context.Usuarios.FindAsync(login.Id);
+            if (user == null)
+            {
+                return BadRequest("Usuario não foi encontrado, verifique o login" + user);
+            }
+            else
+            {
+                IdentityResult result = await _userManager.ResetPasswordAsync(user, tokenReader.SigningCredentials.Key.ToString(), model.NewPassword);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                else
+                {
+                    return Ok();
+                }
+
+            }
+        }
+
+
         private object TokenUsuario(Login contaDeUsusario)
         {
             var claims = new[]
