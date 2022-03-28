@@ -34,7 +34,7 @@ namespace SomeGamer.Api.Controllers
             _signInManager = signInManager;
             _configuration = configuration;
             _context = context;
-        }//teste
+        }
 
         [HttpGet("Get")] 
         public ActionResult<string> Get()
@@ -44,9 +44,9 @@ namespace SomeGamer.Api.Controllers
         //POST api/Account/CriarUser
         [AllowAnonymous]
         [HttpPost("CriarUser")]
-        public async Task<ActionResult> Create([FromBody] Login login)
+        public async Task<ActionResult> Create([FromBody] Person person)
         {
-            var usuario = new User { UserName = login.Email, Email = login.Email };
+            var usuario = new User { UserName = person.Login.Email, Email = person.Login.Email };
             if (_userManager.GetLoginsAsync(usuario) == null)
             {
                 return BadRequest("O usuario já existe");
@@ -54,12 +54,12 @@ namespace SomeGamer.Api.Controllers
             else
             {
                  _context.Usuarios.Add(usuario);
-                var resultado = await _userManager.CreateAsync(usuario, login.Password);
+                var resultado = await _userManager.CreateAsync(usuario, person.Login.Password);
 
                 if (resultado.Succeeded)
                 {
                     await _context.SaveChangesAsync();
-                    return Ok(new { Message = "Usuário Registrado com sucesso" });
+                    return Ok(new { Message = "Usuário cadastrado com sucesso" });
                 }
                 else
                 {
@@ -120,61 +120,61 @@ namespace SomeGamer.Api.Controllers
         }
         // POST api/Account/ChangePassword
         //[Authorize]
-        [HttpPost("ChangePassword")]
-        public async Task<ActionResult> ChangePassword(Login login,ChangePassword model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var user = await _context.Usuarios.FindAsync(login);
-            if(user == null)
-            {
-                return BadRequest("Usuario não foi encontrado, verifique o login" + user);
-            }
-            else
-            {
-                IdentityResult result = await _userManager.ChangePasswordAsync(user, model.OldPassword,
-                model.NewPassword);
+        //[HttpPost("ChangePassword")]
+        //public async Task<ActionResult> ChangePassword(Login login,ChangePassword model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+        //    var user = await _context.Usuarios.FindAsync(login);
+        //    if(user == null)
+        //    {
+        //        return BadRequest("Usuario não foi encontrado, verifique o login" + user);
+        //    }
+        //    else
+        //    {
+        //        IdentityResult result = await _userManager.ChangePasswordAsync(user, model.OldPassword,
+        //        model.NewPassword);
 
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                else
-                {
-                    return Ok();
-                }
+        //        if (!result.Succeeded)
+        //        {
+        //            return BadRequest(result);
+        //        }
+        //        else
+        //        {
+        //            return Ok();
+        //        }
 
-            }
-            //ResetPassword
-        }
-        public async Task<ActionResult> ResetPassword(Login login, ResetPassword model, JwtSecurityToken tokenReader)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var user = await _context.Usuarios.FindAsync(login.Id);
-            if (user == null)
-            {
-                return BadRequest("Usuario não foi encontrado, verifique o login" + user);
-            }
-            else
-            {
-                IdentityResult result = await _userManager.ResetPasswordAsync(user, tokenReader.SigningCredentials.Key.ToString(), model.NewPassword);
+        //    }
+        //    //ResetPassword
+        //}
+        //public async Task<ActionResult> ResetPassword(Login login, ResetPassword model, JwtSecurityToken tokenReader)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+        //    var user = await _context.Usuarios.FindAsync(login.Id);
+        //    if (user == null)
+        //    {
+        //        return BadRequest("Usuario não foi encontrado, verifique o login" + user);
+        //    }k
+        //    else
+        //    {
+        //        IdentityResult result = await _userManager.ResetPasswordAsync(user, tokenReader.SigningCredentials.Key.ToString(), model.NewPassword);
 
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                else
-                {
-                    return Ok();
-                }
+        //        if (!result.Succeeded)
+        //        {
+        //            return BadRequest(result);
+        //        }
+        //        else
+        //        {
+        //            return Ok();
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
 
         private object TokenUsuario(Login contaDeUsusario)

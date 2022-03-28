@@ -10,7 +10,7 @@ using SomeGamer.Data.Context;
 
 namespace SomeGamer.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/People")]
     [ApiController]
     public class PeopleController : ControllerBase
     {
@@ -74,16 +74,16 @@ namespace SomeGamer.Api.Controllers
             return NoContent();
         }
 
-        // POST: api/People
+        // POST: api/People/CriarPerson
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
+        [HttpPost("CriarPerson")]
         public async Task<ActionResult<Person>> PostPerson(Person person)
         {
             _context.People.Add(person);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPerson", new { id = person.Id }, person);
+            return Ok();
+           // return CreatedAtAction("api/Logins/CriarLogin", person);//person;//CreatedAtAction("GetPerson", new { id = person.Id }, person);
         }
 
         // DELETE: api/People/5
