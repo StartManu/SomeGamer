@@ -17,46 +17,45 @@ namespace SomeGamer.Web.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ViewResult CriarLogin() => View();
+        //[HttpGet]
+        //public ViewResult CriarLogin() => View();
 
-        [HttpPost]
-        public async Task<IActionResult> CriarLogin(Login login)
-        {
-            using (var httpClient = new HttpClient())
-            {
-                Login loginReceived = new Login();
-                StringContent content = new StringContent(JsonConvert.SerializeObject(login), 
-                    Encoding.UTF8, "application/json");
+        //[HttpPost]
+        //public async Task<IActionResult> CriarLogin(Login login)
+        //{
+        //    using (var httpClient = new HttpClient())
+        //    {
+        //        Login loginReceived = new Login();
+        //        StringContent content = new StringContent(JsonConvert.SerializeObject(login), 
+        //            Encoding.UTF8, "application/json");
 
-                using (var response = await httpClient.PostAsync("https://localhost:44335/api/Logins/CriarLogin", content))
-                {
-                    string apiResponse = await response.Content.ReadAsStringAsync();
-                    loginReceived = JsonConvert.DeserializeObject<Login>(apiResponse);
-                }
-            }
-            return RedirectToAction("CriarUsuario", login);
-        }
+        //        using (var response = await httpClient.PostAsync("https://localhost:44335/api/Logins/CriarLogin", content))
+        //        {
+        //            string apiResponse = await response.Content.ReadAsStringAsync();
+        //            loginReceived = JsonConvert.DeserializeObject<Login>(apiResponse);
+        //        }
+        //    }
+        //    return RedirectToAction("CriarUsuario", login);
+        //}
 
         [HttpGet]
         public ViewResult CriarUsuario() => View();
 
         [HttpPost]
-        public async Task<IActionResult> CriarUsuario(Person person,Login login)
+        public async Task<IActionResult> CriarUsuario(Person person)
         {
-            person.Login = login;
             using (var httpClient = new HttpClient())
             {
                 Person personReceived = new Person();
                 StringContent content = new StringContent(JsonConvert.SerializeObject(person),
                     Encoding.UTF8, "application/json");
 
-                using (var response = await httpClient
-                    .PostAsync("https://localhost:44335/api/People/CriarPerson", content))
-                {
-                    string apiResponse = await response.Content.ReadAsStringAsync();
-                    personReceived = JsonConvert.DeserializeObject<Person>(apiResponse);
-                }
+                //using (var response = await httpClient
+                //    .PostAsync("https://localhost:44335/api/People/CriarPerson", content))
+                //{
+                //    string apiResponse = await response.Content.ReadAsStringAsync();
+                //    personReceived = JsonConvert.DeserializeObject<Person>(apiResponse);
+                //}
 
                 using (var response = await httpClient
                     .PostAsync("https://localhost:44335/api/Account/CriarUser", content))

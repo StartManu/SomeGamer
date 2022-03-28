@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SomeGamer.Core.Entity;
@@ -36,7 +37,7 @@ namespace SomeGamer.Api.Controllers
             _context = context;
         }
 
-        [HttpGet("Get")] 
+        [HttpGet("Get")]
         public ActionResult<string> Get()
         {
             return "<<Controlador AccountController :: WebApiUsuarios>>";
@@ -46,27 +47,44 @@ namespace SomeGamer.Api.Controllers
         [HttpPost("CriarUser")]
         public async Task<ActionResult> Create([FromBody] Person person)
         {
-            var usuario = new User { UserName = person.Login.Email, Email = person.Login.Email };
-            if (_userManager.GetLoginsAsync(usuario) == null)
+            if (person == null)
             {
-                return BadRequest("O usuario já existe");
+                return BadRequest("O usuario não pode ser null");
             }
             else
             {
-                 _context.Usuarios.Add(usuario);
-                var resultado = await _userManager.CreateAsync(usuario, person.Login.Password);
-
-                if (resultado.Succeeded)
+                var usuario = new User { UserName = person.Login.Email, Email = person.Login.Email };
+                if (_userManager.GetLoginsAsync(usuario) == null)
                 {
-                    await _context.SaveChangesAsync();
-                    return Ok(new { Message = "Usuário cadastrado com sucesso" });
+                    return BadRequest("Login ja existe");
                 }
                 else
                 {
-                    return BadRequest("Alguma coisa deu errado socorro");
+                    var resultado = await _userManager.CreateAsync(usuario, person.Login.Password);
+                    try
+                    {
+                        if (resultado.Succeeded)
+                        {
+                            usuario.Person = person;
+                            _context.People.Add(person);
+                            _context.Logins.Add(person.Login);
+                            _context.Usuarios.Add(usuario);
+                            await _context.SaveChangesAsync();
+                            await _context.SaveChangesAsync();
+                            return Ok(person);
+                        }
+                        else
+                        {
+                            return BadRequest("Alguma coisa deu errado socorro");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        return BadRequest(e.Message);
+                    }
                 }
             }
-            
+
         }
         //POST api/Account/Login
         [HttpPost("Login")]
@@ -81,7 +99,7 @@ namespace SomeGamer.Api.Controllers
             }
             else
             {
-               
+
                 var resultado = await _signInManager.PasswordSignInAsync(login.Email, login.Password,
                     isPersistent: false, lockoutOnFailure: false);
                 if (resultado.Succeeded)
@@ -104,7 +122,7 @@ namespace SomeGamer.Api.Controllers
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {
-            
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -112,11 +130,11 @@ namespace SomeGamer.Api.Controllers
             else
             {
                 //Remove o token aq tmb
-                
+
                 await _signInManager.SignOutAsync();
                 return Ok();
             }
-                        
+
         }
         // POST api/Account/ChangePassword
         //[Authorize]
