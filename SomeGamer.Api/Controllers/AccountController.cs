@@ -43,47 +43,79 @@ namespace SomeGamer.Api.Controllers
             return "<<Controlador AccountController :: WebApiUsuarios>>";
         }
         //POST api/Account/CriarUser
-        [AllowAnonymous]
+        //[AllowAnonymous]
         [HttpPost("CriarUser")]
         public async Task<ActionResult> Create([FromBody] Person person)
         {
-            if (person == null)
+            var usuario = new User { UserName = person.Login.Email, Email = person.Login.Email };
+            var resultado = await _userManager.CreateAsync(usuario, person.Login.Password);
+            if (resultado.Succeeded)
             {
-                return BadRequest("O usuario não pode ser null");
+                usuario.Person = new Person()
+                {
+                    Id = person.Id,
+                    FirstName = person.FirstName,
+                    LastName = person.LastName,
+                    DateBirth = person.DateBirth,
+                    Login = person.Login
+                };
+                await _context.SaveChangesAsync();
+
+                return Ok();
             }
             else
             {
-                var usuario = new User { UserName = person.Login.Email, Email = person.Login.Email };
-                if (_userManager.GetLoginsAsync(usuario) == null)
-                {
-                    return BadRequest("Login ja existe");
-                }
-                else
-                {
-                    var resultado = await _userManager.CreateAsync(usuario, person.Login.Password);
-                    try
-                    {
-                        if (resultado.Succeeded)
-                        {
-                            usuario.Person = person;
-                            _context.People.Add(person);
-                            _context.Logins.Add(person.Login);
-                            _context.Usuarios.Add(usuario);
-                            await _context.SaveChangesAsync();
-                            await _context.SaveChangesAsync();
-                            return Ok(person);
-                        }
-                        else
-                        {
-                            return BadRequest("Alguma coisa deu errado socorro");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        return BadRequest(e.Message);
-                    }
-                }
+                return BadRequest("Alguma coisa deu errado socorro");
             }
+            //try
+            //{
+
+            //}
+            //catch (Exception e)
+            //{
+            //    return BadRequest(e.Message);
+            //}
+            //_context.People.Add(person);
+            //await _context.SaveChangesAsync();
+            //return Ok(person);
+
+            //if (person == null)
+            //{
+            //    return BadRequest("O usuario não pode ser null");
+            //}
+            //else
+            //{
+            //    var usuario = new User { UserName = person.Login.Email, Email = person.Login.Email };
+            //    if (_userManager.GetLoginsAsync(usuario) == null)
+            //    {
+            //        return BadRequest("Login ja existe");
+            //    }
+            //    else
+            //    {
+            //        var resultado = await _userManager.CreateAsync(usuario, person.Login.Password);
+            //        try
+            //        {
+            //            if (resultado.Succeeded)
+            //            {
+            //                usuario.Person = person;
+            //                _context.People.Add(person);
+            //                _context.Logins.Add(person.Login);
+            //                _context.Usuarios.Add(usuario);
+            //                await _context.SaveChangesAsync();
+            //                await _context.SaveChangesAsync();
+            //                return Ok(person);
+            //            }
+            //            else
+            //            {
+            //                return BadRequest("Alguma coisa deu errado socorro");
+            //            }
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            return BadRequest(e.Message);
+            //        }
+            //    }
+            //}
 
         }
         //POST api/Account/Login

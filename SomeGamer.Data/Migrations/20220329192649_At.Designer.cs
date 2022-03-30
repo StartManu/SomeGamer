@@ -10,8 +10,8 @@ using SomeGamer.Data.Context;
 namespace SomeGamer.Data.Migrations
 {
     [DbContext(typeof(SomeGamerDbContext))]
-    [Migration("20220326153253_SomeGamer")]
-    partial class SomeGamer
+    [Migration("20220329192649_At")]
+    partial class At
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
